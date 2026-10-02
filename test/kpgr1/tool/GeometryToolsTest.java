@@ -106,7 +106,7 @@ class GeometryToolsTest {
     @Test
     void clipPolygonCreatesDefaultPentagon() {
         Scene scene = new Scene();
-        new ClipPolygonTool(scene);
+        new ClipPolygonTool(scene).activate();
         assertNotNull(scene.getClipPolygon());
         assertEquals(Scene.MIN_CLIP_VERTICES, scene.getClipPolygon().size());
     }
@@ -126,6 +126,7 @@ class GeometryToolsTest {
     void toggleOrientationFlipsLabelAndReversesPolygon() {
         Scene scene = new Scene();
         ClipPolygonTool tool = new ClipPolygonTool(scene);
+        tool.activate();
         String before = tool.orientationLabel();
         Point first = scene.getClipPolygon().getVertex(0);
         tool.toggleOrientation();
@@ -143,5 +144,84 @@ class GeometryToolsTest {
         assertFalse(new PolygonTool(s).help().isBlank());
         assertFalse(new ClipRectangleTool(s).help().isBlank());
         assertFalse(new ClipPolygonTool(s).help().isBlank());
+    }
+
+    @Test
+    void polygonToolStartsNewPolygonAfterCurrentWasRemoved() {
+        Scene scene = new Scene();
+        PolygonTool tool = new PolygonTool(scene);
+        click(tool, pt(10, 10));
+        click(tool, pt(50, 10));
+        click(tool, pt(30, 40));
+        scene.removePolygon(scene.getPolygons().get(0));
+        click(tool, pt(100, 100));
+        assertEquals(1, scene.getPolygons().size());
+        assertEquals(1, scene.getPolygons().get(0).size());
+    }
+
+    @Test
+    void polygonToolIgnoresPolygonDroppedFromScene() {
+        Scene scene = new Scene();
+        PolygonTool tool = new PolygonTool(scene);
+        click(tool, pt(10, 10));
+        scene.clear();
+        click(tool, pt(20, 20));
+        assertEquals(1, scene.getPolygons().size());
+        assertEquals(1, scene.getPolygons().get(0).size());
+    }
+
+    @Test
+    void resetRemovesUnfinishedPolygonWithFewerThanThreeVertices() {
+        Scene scene = new Scene();
+        PolygonTool tool = new PolygonTool(scene);
+        click(tool, pt(10, 10));
+        click(tool, pt(50, 10));
+        tool.reset();
+        assertTrue(scene.getPolygons().isEmpty());
+    }
+
+    @Test
+    void finishRemovesTwoVertexPolygonButKeepsTriangle() {
+        Scene scene = new Scene();
+        PolygonTool tool = new PolygonTool(scene);
+        click(tool, pt(10, 10));
+        click(tool, pt(50, 10));
+        tool.finish();
+        assertTrue(scene.getPolygons().isEmpty());
+        click(tool, pt(10, 10));
+        click(tool, pt(50, 10));
+        click(tool, pt(30, 40));
+        tool.finish();
+        assertEquals(1, scene.getPolygons().size());
+    }
+
+    @Test
+    void clipPolygonToolDoesNotCreatePentagonImplicitly() {
+        Scene scene = new Scene();
+        ClipPolygonTool tool = new ClipPolygonTool(scene);
+        assertNull(scene.getClipPolygon());
+        tool.reset();
+        assertNull(scene.getClipPolygon());
+    }
+
+    @Test
+    void clipPolygonToolActivateCreatesPentagonExplicitly() {
+        Scene scene = new Scene();
+        ClipPolygonTool tool = new ClipPolygonTool(scene);
+        tool.activate();
+        assertEquals(Scene.MIN_CLIP_VERTICES, scene.getClipPolygon().size());
+    }
+
+    @Test
+    void clipPolygonToolClickAfterClearCreatesPentagonThenExtends() {
+        Scene scene = new Scene();
+        ClipPolygonTool tool = new ClipPolygonTool(scene);
+        tool.activate();
+        scene.clear();
+        tool.reset();
+        assertNull(scene.getClipPolygon());
+        assertTrue(scene.getPolygons().isEmpty());
+        click(tool, pt(3, 4));
+        assertEquals(Scene.MIN_CLIP_VERTICES + 1, scene.getClipPolygon().size());
     }
 }
