@@ -1,12 +1,14 @@
 package kpgr1.fill;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import kpgr1.model.Point;
 import kpgr1.model.Polygon;
 import kpgr1.raster.ArrayRaster;
 import kpgr1.raster.Raster;
 import kpgr1.rasterize.LineRasterizer;
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
 class ScanLineFillerTest {
@@ -143,5 +145,15 @@ class ScanLineFillerTest {
         assertEquals(0, count(r, FILL));
         assertEquals(BORDER, r.getPixel(2, 2));
         assertEquals(BORDER, r.getPixel(8, 2));
+    }
+
+    @Test
+    void hugeOffScreenPolygonIsClampedToRaster() {
+        Polygon p = poly(-1_000_000_000, 5, 1_000_000_000, 5, 0, 15);
+        ArrayRaster r = new ArrayRaster(20, 20);
+        r.clear(BG);
+        assertTimeoutPreemptively(Duration.ofSeconds(5),
+                () -> new ScanLineFiller(r, p, new SolidPattern(FILL), new NoopLine(r), BORDER).fill());
+        assertEquals(20, rowCount(r, 6, FILL));
     }
 }

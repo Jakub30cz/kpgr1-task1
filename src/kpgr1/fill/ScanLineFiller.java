@@ -68,9 +68,9 @@ public final class ScanLineFiller implements Filler {
 
             // Fill between pairs of intersections (inclusive) with the pattern.
             for (int i = 0; i + 1 < count; i += 2) {
-                for (int x = xs[i]; x <= xs[i + 1]; x++) {
-                    if (raster.contains(x, y)) raster.setPixel(x, y, pattern.colorAt(x, y));
-                }
+                int from = Math.max(xs[i], 0);
+                int to = Math.min(xs[i + 1], raster.getWidth() - 1);
+                for (int x = from; x <= to; x++) raster.setPixel(x, y, pattern.colorAt(x, y));
             }
         }
     }
