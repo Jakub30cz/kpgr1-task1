@@ -19,7 +19,11 @@ public class PolygonTool implements Tool {
     public PolygonTool(Scene scene) { this.scene = scene; }
 
     /** Polygon being edited; subclasses may supply a fixed one. Null means "start a new polygon". */
-    Polygon target() { return current; }
+    Polygon target() {
+        // The polygon may have been removed by X / Delete / C since the last click.
+        if (current != null && scene.getPolygons().stream().noneMatch(p -> p == current)) current = null;
+        return current;
+    }
 
     /** Starts a new polygon in the scene. */
     Polygon open() {
@@ -49,6 +53,8 @@ public class PolygonTool implements Tool {
 
     @Override
     public void finish() {
+        // A polygon needs at least 3 vertices; drop leftovers of an unfinished one.
+        if (current != null && current.size() < 3) scene.removePolygon(current);
         current = null;
         cursor = null;
     }
@@ -70,6 +76,6 @@ public class PolygonTool implements Tool {
 
     @Override
     public String help() {
-        return "Polygon (P): klikáním přidáváš vrcholy; Enter polygon uzavře a další klik začne nový.";
+        return "Polygon (P): klikáním přidáváš vrcholy; Enter polygon uzavře a další klik začne nový; C smaže plátno.";
     }
 }
