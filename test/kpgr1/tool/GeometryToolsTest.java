@@ -83,6 +83,8 @@ class GeometryToolsTest {
         Scene scene = new Scene();
         PolygonTool tool = new PolygonTool(scene);
         click(tool, pt(0, 0));
+        click(tool, pt(10, 0));
+        click(tool, pt(5, 8));
         tool.reset();
         click(tool, pt(5, 5));
         assertEquals(2, scene.getPolygons().size());
