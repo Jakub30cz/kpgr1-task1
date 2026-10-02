@@ -99,10 +99,16 @@ class ScanLineFillerTest {
     }
 
     @Test void passThroughVertexNotDoubleCounted() {
-        // Vertex (6,5) continues the right-hand chain downwards: one span per row.
-        ArrayRaster r = fill(poly(2, 2, 6, 5, 4, 9, 0, 9), new SolidPattern(FILL), false);
+        // Vertex (6,5) continues the LEFT-hand chain downwards. If it were counted by both
+        // adjacent edges, row 5 would yield xs [6, 6, ~11] and only pixel 6 would be filled.
+        ArrayRaster r = fill(poly(10, 2, 6, 5, 8, 9, 12, 9), new SolidPattern(FILL), false);
         assertContiguousRows(r, 0, 19);
-        assertEquals(1, rowCount(r, 5, FILL) > 0 ? 1 : 0);
+        assertEquals(FILL, r.getPixel(6, 5));
+        assertEquals(FILL, r.getPixel(7, 5));
+        assertEquals(FILL, r.getPixel(8, 5));
+        assertEquals(FILL, r.getPixel(10, 5));
+        assertEquals(FILL, r.getPixel(8, 6));
+        assertEquals(FILL, r.getPixel(8, 4));
     }
 
     @Test void concaveNotchStaysEmpty() {
