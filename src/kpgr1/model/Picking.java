@@ -43,7 +43,7 @@ public final class Picking {
             for (int i = 0; i < 4; i++) {
                 final int idx = i;
                 result.add(new VertexHandle() {
-                    public Point get() { return rect.corners().get(idx); }
+                    public Point get() { return rect.handle(idx); }
                     public void set(Point q) { rect.moveCorner(idx, q); }
                 });
             }

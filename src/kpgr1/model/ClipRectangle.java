@@ -2,40 +2,57 @@ package kpgr1.model;
 
 import java.util.List;
 
-/** Axis-aligned rectangle given by two opposite corners; corners 0..3 = TL, TR, BR, BL. */
+/**
+ * Axis-aligned rectangle. The two raw corner points are stored as dragged, so each corner handle keeps its identity
+ * even when it is moved past the opposite corner; min/max are derived. Handle indices 0..3 = (x0,y0), (x1,y0),
+ * (x1,y1), (x0,y1), which are TL, TR, BR, BL while the rectangle is not flipped.
+ */
 public final class ClipRectangle {
-    private int minX;
-    private int minY;
-    private int maxX;
-    private int maxY;
+    private int x0;
+    private int y0;
+    private int x1;
+    private int y1;
 
     public ClipRectangle(Point p1, Point p2) {
-        set(p1, p2);
+        x0 = p1.x();
+        y0 = p1.y();
+        x1 = p2.x();
+        y1 = p2.y();
     }
 
-    private void set(Point p1, Point p2) {
-        minX = Math.min(p1.x(), p2.x());
-        maxX = Math.max(p1.x(), p2.x());
-        minY = Math.min(p1.y(), p2.y());
-        maxY = Math.max(p1.y(), p2.y());
-    }
+    public int minX() { return Math.min(x0, x1); }
 
-    public int minX() { return minX; }
+    public int minY() { return Math.min(y0, y1); }
 
-    public int minY() { return minY; }
+    public int maxX() { return Math.max(x0, x1); }
 
-    public int maxX() { return maxX; }
+    public int maxY() { return Math.max(y0, y1); }
 
-    public int maxY() { return maxY; }
-
-    /** Corners in order TL, TR, BR, BL. */
+    /** Normalized corners in order TL, TR, BR, BL, for clipping and rendering. */
     public List<Point> corners() {
-        return List.of(new Point(minX, minY), new Point(maxX, minY), new Point(maxX, maxY), new Point(minX, maxY));
+        return List.of(new Point(minX(), minY()), new Point(maxX(), minY()), new Point(maxX(), maxY()),
+                new Point(minX(), maxY()));
     }
 
-    /** Moves corner {@code index} to {@code p}; the opposite corner stays fixed. */
+    /** Stored position of corner handle {@code index}. */
+    public Point handle(int index) {
+        return switch (index) {
+            case 0 -> new Point(x0, y0);
+            case 1 -> new Point(x1, y0);
+            case 2 -> new Point(x1, y1);
+            case 3 -> new Point(x0, y1);
+            default -> throw new IndexOutOfBoundsException(index);
+        };
+    }
+
+    /** Moves corner handle {@code index} to {@code p}; the opposite handle stays fixed. */
     public void moveCorner(int index, Point p) {
-        Point opposite = corners().get((index + 2) % 4);
-        set(p, opposite);
+        switch (index) {
+            case 0 -> { x0 = p.x(); y0 = p.y(); }
+            case 1 -> { x1 = p.x(); y0 = p.y(); }
+            case 2 -> { x1 = p.x(); y1 = p.y(); }
+            case 3 -> { x0 = p.x(); y1 = p.y(); }
+            default -> throw new IndexOutOfBoundsException(index);
+        }
     }
 }

@@ -41,4 +41,28 @@ class ClipRectangleTest {
         assertEquals(15, r.maxX());
         assertEquals(25, r.maxY());
     }
+
+    @Test
+    void draggedCornerKeepsIdentityPastOppositeCorner() {
+        ClipRectangle r = new ClipRectangle(new Point(2, 4), new Point(10, 20));
+        r.moveCorner(0, new Point(15, 25));
+        assertEquals(new Point(15, 25), r.handle(0));
+        assertEquals(new Point(10, 20), r.handle(2));
+        r.moveCorner(0, new Point(0, 0));
+        assertEquals(new Point(0, 0), r.handle(0));
+        assertEquals(new Point(10, 20), r.handle(2));
+        assertEquals(0, r.minX());
+        assertEquals(20, r.maxY());
+    }
+
+    @Test
+    void moveCornerOnlyChangesItsOwnHandle() {
+        for (int i = 0; i < 4; i++) {
+            ClipRectangle r = new ClipRectangle(new Point(2, 4), new Point(10, 20));
+            Point[] before = {r.handle(0), r.handle(1), r.handle(2), r.handle(3)};
+            r.moveCorner(i, new Point(30, 40));
+            assertEquals(new Point(30, 40), r.handle(i));
+            assertEquals(before[(i + 2) % 4], r.handle((i + 2) % 4));
+        }
+    }
 }
