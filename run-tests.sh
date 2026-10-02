@@ -14,4 +14,6 @@ SRC=$(find src -name '*.java')
 TESTS=$(find test -name '*.java')
 if [ -z "$TESTS" ]; then echo "No tests yet."; exit 0; fi
 javac -d bin/test -cp "bin/main:$JAR" $TESTS
-java -jar "$JAR" execute --class-path "bin/main:bin/test" --scan-class-path --disable-banner --details=summary
+# Arguments (e.g. --select-class kpgr1.raster.ArrayRasterTest) replace the default classpath scan.
+if [ "$#" -gt 0 ]; then SELECT=("$@"); else SELECT=(--scan-class-path); fi
+java -jar "$JAR" execute --class-path "bin/main:bin/test" "${SELECT[@]}" --disable-banner --details=summary
