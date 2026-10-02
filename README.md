@@ -30,11 +30,11 @@ Aktivní režim se přepíná klávesami; nápověda k aktivnímu režimu je ve 
 | `T` | přepnutí stylu výplně: plná barva / vzorek (platí pro semínkové i řádkové vyplnění) |
 | `S` | režim řádkového vyplnění (levý klik uvnitř polygonu jej vyplní; vyhrává nejvyšší obsahující polygon) |
 | `R` | režim ořezávacího obdélníku (stisk-tažení-uvolnění určí okno pro Cohen-Sutherlanda) |
-| `K` | režim ořezávacího polygonu (pokud žádný neexistuje, vytvoří se výchozí pravidelný pětiúhelník) |
+| `K` | režim ořezávacího polygonu (pokud žádný neexistuje, vytvoří se výchozí pravidelný pětiúhelník; `C` jej smaže a znovu se vytvoří až klávesou `K` nebo prvním klikem v tomto režimu) |
 | `O` | přepnutí orientace ořezávacího polygonu CW/CCW (obrátí pořadí jeho vrcholů) |
 | pravé tlačítko + tažení | posun nejbližšího vrcholu (v každém režimu, poloměr výběru 10 px) |
 | Ctrl + levý klik | vložení vrcholu na nejbližší hranu polygonu / ořezávacího polygonu |
-| `Delete` | smazání vrcholu polygonu nejbližšího kurzoru (polygon s méně než 3 vrcholy se odstraní; ořezávací polygon si ponechá alespoň 5) |
+| `Delete` / `Backspace` | smazání vrcholu polygonu nejbližšího kurzoru (polygon s méně než 3 vrcholy se odstraní; ořezávací polygon si ponechá alespoň 5) |
 | `X` | smazání celého polygonu nejbližšího kurzoru |
 | `C` | vymazání plátna, scény i stavu všech nástrojů |
 

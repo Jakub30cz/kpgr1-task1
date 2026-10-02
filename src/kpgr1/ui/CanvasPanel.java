@@ -31,6 +31,9 @@ public final class CanvasPanel extends JPanel {
     private static final int DEFAULT_WIDTH = 900;
     private static final int DEFAULT_HEIGHT = 650;
 
+    private static final String GLOBAL_HELP =
+            "L/P/F/S/R/K přepínají režim, B/T výplň, O orientace, C smaže plátno, X/Delete mažou";
+
     private final StatusBar status;
     private final Scene scene = new Scene();
     private final FillSettings fillSettings = new FillSettings();
@@ -46,6 +49,8 @@ public final class CanvasPanel extends JPanel {
     private SceneRenderer renderer;
     private Tool tool = lineTool;
     private boolean editing;
+    /** True when the current left-button gesture was delivered to the tool; decided on press, not on Ctrl state. */
+    private boolean toolGesture;
     private Point lastMouse = new Point(0, 0);
 
     public CanvasPanel(StatusBar status) {
@@ -78,8 +83,8 @@ public final class CanvasPanel extends JPanel {
     /** Re-renders the scene with the active tool's preview, updates the status bar and repaints. */
     private void refresh(String message) {
         renderer.render(scene, tool.preview());
-        status.setHelp(tool.help());
-        status.setSettings("Seed fill: "
+        status.setHelp(tool.help() + " | " + GLOBAL_HELP);
+        status.setSettings("Semínkové vyplnění: "
                 + (fillSettings.mode == SeedFillMode.STOP_ON_BOUNDARY ? "zastavit na hranici" : "jen barva pozadí")
                 + " | Výplň: " + (fillSettings.pattern ? "vzor" : "plná")
                 + " | Orientace ořezávacího polygonu: " + clipOrientation());
@@ -111,7 +116,8 @@ public final class CanvasPanel extends JPanel {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     editing = editor.grab(p);
                 } else if (SwingUtilities.isLeftMouseButton(e)) {
-                    if (e.isControlDown()) {
+                    toolGesture = !e.isControlDown();
+                    if (!toolGesture) {
                         if (!editor.insertOnNearestEdge(p)) message = "V okolí není žádná hrana.";
                     } else {
                         tool.pressed(p, e.isShiftDown());
@@ -126,7 +132,7 @@ public final class CanvasPanel extends JPanel {
                 lastMouse = p;
                 if (SwingUtilities.isRightMouseButton(e)) {
                     if (editing) editor.drag(p);
-                } else if (SwingUtilities.isLeftMouseButton(e) && !e.isControlDown()) {
+                } else if (SwingUtilities.isLeftMouseButton(e) && toolGesture) {
                     tool.dragged(p, e.isShiftDown());
                 }
                 refresh("");
@@ -139,8 +145,9 @@ public final class CanvasPanel extends JPanel {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     editor.release();
                     editing = false;
-                } else if (SwingUtilities.isLeftMouseButton(e) && !e.isControlDown()) {
+                } else if (SwingUtilities.isLeftMouseButton(e) && toolGesture) {
                     tool.released(p, e.isShiftDown());
+                    toolGesture = false;
                 }
                 refresh("");
             }
@@ -176,6 +183,7 @@ public final class CanvasPanel extends JPanel {
             tool.reset();
             // Created with the real canvas size so the default pentagon fits the window.
             clipPolygonTool = new ClipPolygonTool(scene, raster.getWidth(), raster.getHeight());
+            clipPolygonTool.activate();
             tool = clipPolygonTool;
             refresh("");
         });
@@ -199,7 +207,9 @@ public final class CanvasPanel extends JPanel {
             tool.finish();
             refresh("");
         });
-        bind(KeyEvent.VK_DELETE, "deleteVertex", () -> refresh(editor.deleteNearestVertex(lastMouse)));
+        Runnable deleteVertex = () -> refresh(editor.deleteNearestVertex(lastMouse));
+        bind(KeyEvent.VK_DELETE, "deleteVertex", deleteVertex);
+        bind(KeyEvent.VK_BACK_SPACE, "deleteVertexMac", deleteVertex);
         bind(KeyEvent.VK_X, "deletePolygon",
                 () -> refresh(editor.deleteNearestPolygon(lastMouse) ? "" : "V okolí není žádný polygon."));
         bind(KeyEvent.VK_C, "clear", this::clearAll);
