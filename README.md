@@ -87,6 +87,13 @@ posun vrcholů pravým tlačítkem je společný pro všechny režimy (`VertexEd
 
 ## Použití AI
 
-Zdrojový kód byl vygenerován nástrojem Claude Code (Anthropic) pod vedením studenta.
-Student určil zadání, požadavky a návrhová rozhodnutí (volba algoritmů, architektura, ovládání,
-rozsah bonusů), výsledný kód zkontroloval a otestoval.
+Použití AI uvádím v souladu s pokynem prorektora UHK č. 7/2026 (účel, rozsah, ověření).
+
+- **Nástroj:** Claude Code (Anthropic) včetně jeho AI agentů.
+- **Rozsah:** AI napsala většinu zdrojového kódu v `src/`, automatické testy v `test/`, tento README
+  a předvyplnila hodnoticí tabulku v `doc/`.
+- **Způsob:** zadal jsem požadavky podle zadání úlohy a hodnoticí tabulky a rozhodl o algoritmech,
+  architektuře, ovládání a rozsahu bonusů. AI implementovala řešení po malých krocích metodou TDD
+  (nejdřív test, pak implementace) s commitem po každém kroku.
+- **Ověření:** 120 testů JUnit 5 (`./run-tests.sh`), ruční vyzkoušení všech režimů v aplikaci
+  a kontrola hodnoticí tabulky proti programu. Za odevzdané řešení odpovídám já.
