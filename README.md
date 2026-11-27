@@ -1,5 +1,7 @@
 # KPGR1 – Úloha 1: rasterizace, vyplňování a ořezávání
 
+Autor: Jakub Jüthner
+
 Interaktivní Swing aplikace, která demonstruje základní rasterové algoritmy počítačové grafiky:
 kreslení úseček, vyplňování oblastí (semínkové a řádkové) a ořezávání úseček a polygonů.
 Veškerý obsah scény se zapisuje do rastru pixel po pixelu přes `Raster.setPixel`;
